@@ -5,20 +5,22 @@ go-test:
 	@echo "Run all project tests..."
 	go test -v -p 1 ./...
 
-.PHONY: go-build
-go-build: go-get
+.PHONY: bin
+bin: clean
 	@echo "Build project binaries..."
-	CGO_ENABLED=0 go build -v -o $(BUILD_CONTEXT)/respawn respawn.go
+	GOOS=linux GOARCH=386 go build -v -o $(BUILD_CONTEXT)/respawn_linux_386
+	GOOS=darwin GOARCH=386 go build -v -o $(BUILD_CONTEXT)/respawn_darwin_386
+	GOOS=linux GOARCH=386 go build -v -o $(BUILD_CONTEXT)/respawn_windows_386
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_CONTEXT)/
 
 .PHONY: go-get
 go-get:
 	@echo "Fetch project dependencies..."
 	GO111MODULE=on go get -u ./...
 	GO111MODULE=on go mod vendor
-
-.PHONY: clean
-clean:
-	rm -rf $(BUILD_CONTEXT)/respawn
 
 .PHONY: setup
 setup: clean go-get go-build
