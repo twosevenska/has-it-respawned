@@ -10,9 +10,7 @@ import (
 	resty "gopkg.in/resty.v0"
 )
 
-// These values should be loaded from env or a secrets storage
 const steamURL = "http://api.steampowered.com"
-const steamKey = "REPLACE_WITH_API_KEY"
 
 // ResponseError represents a plaza error
 type ResponseError struct {
@@ -31,17 +29,18 @@ func (e ResponseError) Error() string {
 type Client struct {
 	client *resty.Client
 	URL    string
+	Key    string
 }
 
 // New creates and returns a new Mailchimp API client
-func New() Client {
+func New(steamKey string) Client {
 	return Client{
 		client: resty.New().
 			SetLogger(ioutil.Discard).
 			SetTimeout(5*time.Second).
-			SetHeader("Content-Type", "application/json").
-			SetHeader("Authorization", fmt.Sprintf("apikey %s", steamKey)),
+			SetHeader("Content-Type", "application/json"),
 		URL: steamURL,
+		Key: steamKey,
 	}
 }
 
@@ -49,7 +48,7 @@ func New() Client {
 func (c *Client) GetGames(userID string) (GamesList, error) {
 	var cResp Response
 	var cErr ResponseError
-	u := fmt.Sprintf("%s/IPlayerService/GetOwnedGames/v0001/?key=%s&steamid=%s&format=json&include_appinfo=1&include_played_free_games=1", c.URL, steamKey, userID)
+	u := fmt.Sprintf("%s/IPlayerService/GetOwnedGames/v0001/?key=%s&steamid=%s&format=json&include_appinfo=1&include_played_free_games=1", c.URL, c.Key, userID)
 	resp, err := c.client.R().
 		SetResult(&cResp).
 		SetError(&cErr).
