@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -19,10 +20,14 @@ func main() {
 	flag.Parse()
 
 	args := flag.Args()
-	if len(args) != 1 {
-		log.Fatal("Please provide an API key for Steam WEB API.")
+	k := os.Getenv("RESPAWN_STEAM_KEY")
+	if k == "" {
+		if len(args) != 1 {
+			log.Fatal("Please provide an API key for Steam WEB API.")
+		}
+		k = args[0]
 	}
-	k := args[0]
+
 	contextParams := ContextParams{
 		SteamClient: steampowered.New(k),
 	}
